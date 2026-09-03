@@ -184,7 +184,7 @@ export default function ServicesPage() {
             </p>
             <a
               href="/contact"
-              className="inline-block bg-white text-blue-700 font-semibold px-8 py-3 rounded-full shadow-lg hover:shadow-xl hover:bg-gray-50 transition-all duration-300 transform hover:-translate-y-0.5"
+              className="inline-block bg-gray-50 text-blue-700 font-semibold px-8 py-3 rounded-full shadow-lg hover:shadow-xl hover:bg-gray-50 transition-all duration-300 transform hover:-translate-y-0.5"
             >
               Jetzt Tech-Beratung anfragen
             </a>
