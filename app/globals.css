@@ -1,0 +1,1700 @@
+/* ==========================================================================
+   TECH-SOLUTIONS — Stylesheet
+   Technologieunternehmen · Corporate Design
+   Richtung: technisches Schaltplan-/Blueprint-Vokabular statt SaaS-Marketing-Look.
+   Präzision statt Verlauf, Haarlinien statt Schatten, Monospace als Systemstimme.
+
+   Inhalt:
+    1. Fonts & Framework
+    2. Design-Tokens
+    3. Grundlagen
+    4. .app — Seitengerüst
+    5. Navigation
+    6. Hero Section — Banner
+    7. Buttons
+    8. Content-Bereiche
+    9. CTA Section & Formular (dunkel)
+   10. Formulare (hell) — allgemeine Eingabefelder
+   11. Tabellen
+   12. Badges & Status-Chips
+   13. Alerts & Toasts
+   14. Blockquote, Code & HR
+   15. Dropdown-Menü
+   16. Skip-Link
+   17. Content-Pages (Impressum, Datenschutz, AGB)
+   18. Footer
+   19. Utilities
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. Fonts & Framework
+   Reihenfolge: Zuerst Tailwind (Basis-Reset/Utilities), dann Fonts.
+   Space Grotesk für Überschriften (geometrisch, technisch, kantig),
+   IBM Plex Sans für Fließtext (neutral, für Dokumentation gebaut),
+   IBM Plex Mono für Labels, Koordinaten, Status-Codes — die "Systemstimme".
+   -------------------------------------------------------------------------- */
+@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap');
+
+/* --------------------------------------------------------------------------
+   2. Design-Tokens
+   -------------------------------------------------------------------------- */
+:root {
+  /* ===== Farben ===== */
+  /* Grundfarbe: kühles, fast schwarzes Tannengrün — kein Navy, kein reines Schwarz */
+  --color-ink: #0d1a14;
+  --color-ink-soft: #16261e;
+  --color-white: #ffffff;
+  --color-paper: #f6f7f5;         /* kühles Papier, bewusst kein warmes Creme */
+  --color-line: #d8ded9;          /* Haarlinien / Raster */
+  --color-line-strong: #0d1a14;
+  --color-text: #16211c;
+  --color-text-muted: #536159;    /* abgedunkelt für WCAG AA auf Paper */
+  --color-text-muted-dark: #4a554e; /* zusätzliche Stufe: Tabellen-/Formular-Labels, wo mehr Kontrast als der normale Fließtext-Ton nötig ist */
+
+  /* Signal: Grün wird wie eine Status-LED verwendet — punktuell, nie flächig */
+  --color-signal: #1a8f4c;
+  --color-signal-strong: #0f6636;
+  --color-signal-bg: #e8f5ec;
+  --color-signal-dim: #9fbfac;    /* gedimmte LED — sekundäre/inaktive Badges */
+
+  /* Status */
+  --color-success-bg: #e8f5ec;
+  --color-success-text: #0f6636;
+  --color-error-bg: #fdecec;
+  --color-error-text: #9a2626;
+
+  /* ===== Typografie ===== */
+  --font-display: 'Space Grotesk', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-body: 'IBM Plex Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
+
+  --fs-h1: clamp(2.25rem, 1.6rem + 2.6vw, 3.75rem);
+  --fs-h2: clamp(1.6rem, 1.3rem + 1.2vw, 2.5rem);
+  --fs-h3: 1.25rem;
+  --fs-h4: 1.1rem;
+  --fs-body: 1rem;
+  --fs-small: 0.875rem;
+  --fs-xs: 0.75rem;
+
+  /* ===== Abstände & Radien =====
+     Bewusst kantig statt "pill": ein technisches Spec-Sheet hat keine
+     abgerundeten Buttons. Radien dienen nur der Lesbarkeit von Text in
+     kleinen Chips, nie der Dekoration. Alle "eckigen" Elemente referenzieren
+     konsequent --radius-s statt hartem 0, damit ein einziger Token die
+     gesamte Eckigkeit des Systems steuert. */
+  --radius-s: 2px;
+  --radius-m: 4px;
+  --radius-l: 4px;
+  --radius-full: 2px;
+
+  --space-xs: 0.5rem;
+  --space-s: 1rem;
+  --space-m: 1.5rem;
+  --space-l: 2.5rem;
+  --space-xl: 4.5rem;
+  --space-2xl: 6rem;
+  --space-3xl: 8rem;
+
+  /* ===== Schatten =====
+     Kein weicher Glow — Tiefe entsteht durch harte Haarlinien und
+     Eckmarken, nicht durch verlaufende Schatten. --shadow-button bleibt
+     bewusst "none" (Buttons sind flach); --shadow-card/--shadow-hover
+     werden konsequent für jedes hover-fähige Flächenelement verwendet,
+     nicht nur punktuell. */
+  --shadow-button: none;
+  --shadow-card: 0 1px 0 0 var(--color-line);
+  --shadow-hover: 0 2px 0 0 var(--color-signal);
+
+  /* ===== Z-Index-Skala ===== */
+  --z-header: 100;
+  --z-dropdown: 200;
+  --z-modal: 300;
+  --z-toast: 400;
+
+  /* ===== Übergänge ===== */
+  --transition: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* ===== Layout ===== */
+  --content-width: 1200px;
+  --text-width: 68ch;
+}
+
+/* --------------------------------------------------------------------------
+   3. Grundlagen
+   -------------------------------------------------------------------------- */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: var(--fs-body);
+  color: var(--color-text);
+  background-color: var(--color-paper);
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  /* feines Punktraster als Hintergrundtextur — Blueprint-Referenz */
+  background-image: radial-gradient(var(--color-line) 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+
+/* ===== Scrollbar ===== */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-paper);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-line-strong);
+  border-radius: 0;
+  transition: background var(--transition);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-signal);
+}
+
+/* ===== Typografie ===== */
+h1, h2, h3, h4 {
+  font-family: var(--font-display);
+  color: var(--color-ink);
+  line-height: 1.15;
+  font-weight: 600;
+  margin: 0 0 var(--space-s);
+  letter-spacing: -0.01em;
+}
+
+h1 { font-size: var(--fs-h1); font-weight: 700; letter-spacing: -0.03em; }
+h2 { font-size: var(--fs-h2); }
+h3 { font-size: var(--fs-h3); }
+h4 { font-size: var(--fs-h4); font-weight: 600; }
+
+p {
+  margin: 0 0 var(--space-s);
+  max-width: var(--text-width);
+  color: var(--color-text-muted);
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+/* Monospace-Utility für Labels, Eyebrows, Statuscodes — die "Systemstimme" */
+.mono-label {
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+/* ===== Fokus ===== */
+:focus-visible {
+  outline: 2px solid var(--color-signal);
+  outline-offset: 3px;
+  border-radius: var(--radius-s);
+}
+
+/* ===== Reduced Motion ===== */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ===== Selection ===== */
+::selection {
+  background: var(--color-signal);
+  color: var(--color-white);
+}
+
+/* --------------------------------------------------------------------------
+   4. .app — Seitengerüst
+   -------------------------------------------------------------------------- */
+.app {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.app > main {
+  flex: 1 1 auto;
+}
+
+/* --------------------------------------------------------------------------
+   5. Navigation
+   -------------------------------------------------------------------------- */
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-header);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-m);
+  /* Bleibt als Balken vollflächig (full-bleed), aber der Inhalt richtet sich
+     ab großen Viewports am selben --content-width aus wie Hero, Content-
+     Sections, Service-Grid und Footer. Ohne Wrapper-Element gelöst: die
+     Innenabstände wachsen erst, sobald die Bildschirmbreite die
+     Content-Breite übersteigt. */
+  padding-block: var(--space-s);
+  padding-inline: max(var(--space-l), calc((100% - var(--content-width)) / 2 + var(--space-l)));
+  background-color: var(--color-white);
+  border-bottom: 1px solid var(--color-line);
+  transition: box-shadow var(--transition);
+}
+
+.site-header.scrolled {
+  box-shadow: 0 1px 0 0 var(--color-line-strong);
+}
+
+.brand-link {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  text-decoration: none;
+  color: var(--color-ink);
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.15rem;
+}
+
+/* Statt eines Verlaufs-Quadrats: eine Status-Marke, wie eine System-LED.
+   Signature-Element der Marke — taucht in Header, Hero und Footer wieder auf. */
+.brand-mark {
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius-s);
+  background: var(--color-ink);
+  border: 1px solid var(--color-line-strong);
+  flex-shrink: 0;
+  position: relative;
+}
+
+.brand-mark::after {
+  content: '';
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  width: 6px;
+  height: 6px;
+  background: var(--color-signal);
+  box-shadow: 0 0 0 3px rgba(26, 143, 76, 0.18);
+}
+
+.main-navigation ul {
+  display: flex;
+  align-items: center;
+  gap: var(--space-l);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.main-navigation a {
+  text-decoration: none;
+  color: var(--color-text-muted);
+  font-weight: 500;
+  font-size: 0.95rem;
+  padding: 0.35rem 0;
+  border-bottom: 2px solid transparent;
+  transition: color var(--transition), border-color var(--transition);
+}
+
+.main-navigation a:hover,
+.main-navigation a:focus-visible {
+  color: var(--color-ink);
+  border-color: var(--color-signal);
+}
+
+.menu-toggle {
+  display: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: var(--radius-s);
+  transition: background var(--transition);
+}
+
+.menu-toggle:hover {
+  background: var(--color-paper);
+}
+
+.hamburger,
+.hamburger::before,
+.hamburger::after {
+  display: block;
+  width: 24px;
+  height: 2px;
+  background-color: var(--color-ink);
+  transition: var(--transition);
+  border-radius: 0;
+}
+
+.hamburger {
+  position: relative;
+}
+
+.hamburger::before,
+.hamburger::after {
+  content: '';
+  position: absolute;
+  left: 0;
+}
+
+.hamburger::before { top: -8px; }
+.hamburger::after { top: 8px; }
+
+.hamburger.open {
+  background: transparent;
+}
+
+.hamburger.open::before {
+  top: 0;
+  transform: rotate(45deg);
+}
+
+.hamburger.open::after {
+  top: 0;
+  transform: rotate(-45deg);
+}
+
+@media (max-width: 800px) {
+  .menu-toggle {
+    display: block;
+  }
+
+  .main-navigation ul {
+    position: absolute;
+    inset-inline: 0;
+    top: 100%;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0;
+    background: var(--color-white);
+    border-bottom: 1px solid var(--color-line);
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height var(--transition), padding var(--transition);
+    padding: 0 var(--space-l);
+  }
+
+  .main-navigation ul.active {
+    max-height: 400px;
+    padding: var(--space-s) var(--space-l) var(--space-m);
+  }
+
+  .main-navigation li {
+    width: 100%;
+    padding: 0.6rem 0;
+  }
+
+  .main-navigation a {
+    display: block;
+    width: 100%;
+    font-size: 1.05rem;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   6. Hero Section — Banner
+   -------------------------------------------------------------------------- */
+.hero-section {
+  position: relative;
+  overflow: hidden;
+  padding: var(--space-2xl) var(--space-l);
+  background: var(--color-white);
+  text-align: center;
+  border-bottom: 1px solid var(--color-line);
+}
+
+/* Eckmarken wie auf einer technischen Zeichnung — das wiederkehrende
+   Signature-Motiv der Marke. Bewusst nur hier eingesetzt (siehe Kommentar
+   in Abschnitt 8/17): das Motiv bleibt an einem Ort stark statt überall
+   leicht verwässert wiederholt zu werden. */
+.hero-section::before,
+.hero-section::after {
+  content: '';
+  position: absolute;
+  width: 24px;
+  height: 24px;
+  border: 1px solid var(--color-line-strong);
+  opacity: 0.35;
+  pointer-events: none;
+}
+
+.hero-section::before {
+  top: var(--space-m);
+  left: var(--space-m);
+  border-right: none;
+  border-bottom: none;
+}
+
+.hero-section::after {
+  bottom: var(--space-m);
+  right: var(--space-m);
+  border-left: none;
+  border-top: none;
+}
+
+.hero-content {
+  position: relative;
+  max-width: 780px;
+  margin: 0 auto;
+}
+
+.hero-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: var(--space-m);
+  padding: 0.4rem 0.9rem;
+  border-radius: var(--radius-s);
+  border: 1px solid var(--color-line);
+  background: var(--color-white);
+  color: var(--color-text-muted);
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.hero-eyebrow::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  background: var(--color-signal);
+  flex-shrink: 0;
+}
+
+.hero-title {
+  margin-bottom: var(--space-s);
+}
+
+.hero-title .highlight {
+  color: var(--color-signal-strong);
+}
+
+.hero-subtitle {
+  margin: 0 auto var(--space-m);
+  color: var(--color-text-muted);
+  font-size: 1.15rem;
+  max-width: 600px;
+}
+
+.hero-actions {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-s);
+  flex-wrap: wrap;
+}
+
+/* --------------------------------------------------------------------------
+   7. Buttons
+   Rechteckig, textbasiert, mit Klammern statt Verlauf und Schatten —
+   liest sich wie ein Terminal-Befehl, nicht wie ein Marketing-CTA.
+   -------------------------------------------------------------------------- */
+.cta-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.85rem 1.75rem;
+  border-radius: var(--radius-s);
+  border: 1px solid transparent;
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-size: 0.9rem;
+  letter-spacing: 0.01em;
+  text-decoration: none;
+  cursor: pointer;
+  /* explizit referenziert statt implizit "kein Schatten" — dokumentiert die
+     Absicht, dass Buttons in diesem System nie einen Schlagschatten tragen */
+  box-shadow: var(--shadow-button);
+  transition: background-color var(--transition), color var(--transition),
+    border-color var(--transition), transform var(--transition);
+}
+
+.cta-button.primary {
+  background: var(--color-ink);
+  color: var(--color-white);
+  border-color: var(--color-ink);
+}
+
+.cta-button.primary:hover {
+  background: var(--color-signal-strong);
+  border-color: var(--color-signal-strong);
+}
+
+.cta-button.primary:active {
+  transform: translateY(1px);
+}
+
+.cta-button.secondary {
+  background-color: transparent;
+  color: var(--color-ink);
+  border-color: var(--color-line-strong);
+}
+
+.cta-button.secondary:hover {
+  border-color: var(--color-signal);
+  color: var(--color-signal-strong);
+}
+
+.cta-button:disabled,
+.cta-button[aria-disabled="true"] {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* --------------------------------------------------------------------------
+   8. Content-Bereiche
+   -------------------------------------------------------------------------- */
+.content-section {
+  padding: var(--space-xl) var(--space-l);
+}
+
+.content-section.alt {
+  background-color: var(--color-white);
+  border-top: 1px solid var(--color-line);
+  border-bottom: 1px solid var(--color-line);
+}
+
+.content-container {
+  max-width: var(--content-width);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-xl);
+  align-items: center;
+}
+
+.content-heading {
+  margin-bottom: var(--space-s);
+}
+
+.content-heading .highlight {
+  color: var(--color-signal-strong);
+}
+
+.content-paragraph {
+  margin-bottom: var(--space-m);
+}
+
+.content-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.content-list li {
+  position: relative;
+  padding-left: 1.8rem;
+  color: var(--color-text);
+  font-weight: 500;
+}
+
+/* Checkmark ersetzt durch Monospace-Statuszeichen — konsequent zur
+   "Systemstimme" der Marke statt eines generischen Häkchens. */
+.content-list li::before {
+  content: '›';
+  position: absolute;
+  left: 0;
+  top: 0;
+  color: var(--color-signal);
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+.content-media img,
+.infographic-image {
+  width: 100%;
+  height: auto;
+  border-radius: var(--radius-s);
+  border: 1px solid var(--color-line);
+}
+
+.video-wrapper {
+  position: relative;
+  padding-bottom: 56.25%;
+  height: 0;
+  overflow: hidden;
+  border-radius: var(--radius-s);
+  border: 1px solid var(--color-line);
+}
+
+.video-wrapper iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+@media (max-width: 900px) {
+  .content-container {
+    grid-template-columns: 1fr;
+    gap: var(--space-l);
+  }
+
+  .content-section {
+    padding: var(--space-l) var(--space-s);
+  }
+}
+
+/* ===== Service-Grid ===== */
+.service-grid {
+  max-width: var(--content-width);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  background: var(--color-line);
+  border: 1px solid var(--color-line);
+}
+
+.service-item {
+  padding: var(--space-m);
+  border-radius: 0;
+  background: var(--color-white);
+  border: none;
+  transition: background var(--transition), box-shadow var(--transition);
+  position: relative;
+}
+
+.service-item:hover {
+  background: var(--color-paper);
+  box-shadow: var(--shadow-card); /* dezente Haarlinie als Hover-Feedback */
+}
+
+.service-item:hover::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--color-signal);
+}
+
+.service-item .icon {
+  display: inline-flex;
+  width: 40px;
+  height: 40px;
+  border-radius: 0;
+  background: var(--color-ink);
+  color: var(--color-signal);
+  align-items: center;
+  justify-content: center;
+  font-size: 1.35rem;
+  margin-bottom: var(--space-s);
+}
+
+.service-item h3 {
+  margin-bottom: 0.5rem;
+}
+
+.service-item p {
+  margin-bottom: 0;
+  font-size: var(--fs-small);
+}
+
+@media (max-width: 900px) {
+  .service-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .service-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   9. CTA Section & Formular (dunkel)
+   -------------------------------------------------------------------------- */
+.cta-section {
+  padding: var(--space-xl) var(--space-l);
+  background: var(--color-ink);
+  color: var(--color-white);
+  text-align: center;
+  position: relative;
+}
+
+.cta-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--color-signal);
+}
+
+.cta-container {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.cta-title {
+  color: var(--color-white);
+  margin-bottom: 0.75rem;
+}
+
+.cta-description {
+  color: rgba(255, 255, 255, 0.7); /* leicht erhöht für Kontrast */
+  margin-bottom: var(--space-m);
+}
+
+.cta-success {
+  padding: 1rem 1.5rem;
+  background-color: var(--color-success-bg);
+  color: var(--color-success-text);
+  border-radius: var(--radius-s);
+  border-left: 3px solid var(--color-success-text);
+  font-weight: 500;
+  margin-bottom: var(--space-m);
+  text-align: left;
+}
+
+/* Gegenstück zu .cta-success — bislang fehlte eine Fehlerdarstellung,
+   obwohl die Error-Farbtokens bereits im System definiert waren. */
+.cta-error {
+  padding: 1rem 1.5rem;
+  background-color: var(--color-error-bg);
+  color: var(--color-error-text);
+  border-radius: var(--radius-s);
+  border-left: 3px solid var(--color-error-text);
+  font-weight: 500;
+  margin-bottom: var(--space-m);
+  text-align: left;
+}
+
+.cta-form {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: var(--space-s);
+}
+
+.cta-input {
+  flex: 1;
+  padding: 0.9rem 1.2rem;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: var(--radius-s);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--color-white);
+  font-size: 1rem;
+  outline: none;
+  transition: border-color var(--transition), background var(--transition);
+}
+
+.cta-input::placeholder {
+  color: rgba(255, 255, 255, 0.5); /* leicht erhöht */
+}
+
+.cta-input:focus {
+  border-color: var(--color-signal);
+  background: rgba(255, 255, 255, 0.07);
+}
+
+.cta-input.has-error {
+  border-color: var(--color-error-text);
+}
+
+.cta-submit-button {
+  padding: 0.9rem 2rem;
+  background: var(--color-signal);
+  color: var(--color-white);
+  border: 1px solid var(--color-signal);
+  border-radius: var(--radius-s);
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-size: 0.9rem;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background var(--transition), transform var(--transition);
+}
+
+.cta-submit-button:hover {
+  background: var(--color-signal-strong);
+  border-color: var(--color-signal-strong);
+}
+
+.cta-submit-button:active {
+  transform: translateY(1px);
+}
+
+.cta-note {
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  color: rgba(255, 255, 255, 0.5); /* leicht erhöht */
+  margin: 0;
+}
+
+.cta-direct-actions {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-s);
+  margin-top: var(--space-m);
+}
+
+@media (max-width: 600px) {
+  .cta-form {
+    flex-direction: column;
+  }
+
+  .cta-submit-button {
+    width: 100%;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   10. Formulare (hell) — allgemeine Eingabefelder
+   Die CTA-Section deckt nur das dunkle Newsletter-Formular ab. Für
+   Kontakt-/Anfrageformulare auf hellem Grund (z. B. Content- oder
+   Content-Page-Layouts) fehlten bislang eigene Feldstile — hier ergänzt,
+   konsequent im selben eckigen, haarlinien-basierten Vokabular.
+   -------------------------------------------------------------------------- */
+.form-group {
+  margin-bottom: var(--space-s);
+  text-align: left;
+}
+
+.form-label {
+  display: block;
+  margin-bottom: 0.4rem;
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-text-muted-dark);
+}
+
+.form-label .optional {
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--color-text-muted);
+}
+
+.form-input,
+.form-textarea,
+.form-select {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-s);
+  background: var(--color-white);
+  color: var(--color-text);
+  font-family: var(--font-body);
+  font-size: 1rem;
+  outline: none;
+  transition: border-color var(--transition), box-shadow var(--transition);
+}
+
+.form-textarea {
+  resize: vertical;
+  min-height: 120px;
+  line-height: 1.6;
+}
+
+.form-input:focus,
+.form-textarea:focus,
+.form-select:focus {
+  border-color: var(--color-signal);
+  box-shadow: 0 0 0 3px var(--color-signal-bg);
+}
+
+.form-input::placeholder,
+.form-textarea::placeholder {
+  color: var(--color-text-muted);
+  opacity: 0.7;
+}
+
+.form-input.has-error,
+.form-textarea.has-error,
+.form-select.has-error {
+  border-color: var(--color-error-text);
+}
+
+.form-hint {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  color: var(--color-text-muted);
+  margin-top: 0.4rem;
+}
+
+.form-error-text {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  color: var(--color-error-text);
+  margin-top: 0.4rem;
+}
+
+/* Kästchen statt runder Kreise — auch bei Checkbox/Radio bleibt das
+   System eckig, statt auf den Browser-Standard zurückzufallen. */
+.form-check {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  font-size: var(--fs-small);
+  color: var(--color-text);
+}
+
+.form-check input[type='checkbox'],
+.form-check input[type='radio'] {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  margin-top: 2px;
+  accent-color: var(--color-signal);
+  border-radius: var(--radius-s);
+}
+
+/* --------------------------------------------------------------------------
+   11. Tabellen
+   Fehlten bislang vollständig, obwohl Content-Pages (z. B. Preisübersichten,
+   Firmendaten im Impressum) typischerweise Tabellen brauchen.
+   -------------------------------------------------------------------------- */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0 0 var(--space-m);
+  font-size: var(--fs-small);
+}
+
+.data-table caption {
+  text-align: left;
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  margin-bottom: 0.5rem;
+}
+
+.data-table th,
+.data-table td {
+  text-align: left;
+  padding: 0.65rem 1rem;
+  border-bottom: 1px solid var(--color-line);
+}
+
+.data-table th {
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-weight: 500;
+  color: var(--color-text-muted-dark);
+  border-bottom: 1px solid var(--color-line-strong);
+}
+
+.data-table tbody tr:hover {
+  background: var(--color-paper);
+}
+
+.data-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* --------------------------------------------------------------------------
+   12. Badges & Status-Chips
+   Verallgemeinerte Version des Hero-Eyebrow-Musters (Kasten + LED-Punkt),
+   wiederverwendbar für Status, Kategorien, Plan-Kennzeichnungen etc.,
+   statt das Muster bei jedem neuen Bedarf einzeln nachzubauen.
+   -------------------------------------------------------------------------- */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.3rem 0.75rem;
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-s);
+  background: var(--color-white);
+  color: var(--color-text-muted);
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.badge::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  flex-shrink: 0;
+  background: var(--color-signal);
+}
+
+.badge.dim {
+  color: var(--color-text-muted-dark);
+}
+
+.badge.dim::before {
+  background: var(--color-signal-dim);
+}
+
+.badge.on-dark {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.18);
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* --------------------------------------------------------------------------
+   13. Alerts & Toasts
+   -------------------------------------------------------------------------- */
+.alert {
+  display: flex;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+  border: 1px solid var(--color-line);
+  border-left: 3px solid var(--color-line-strong);
+  border-radius: var(--radius-s);
+  background: var(--color-white);
+  font-size: var(--fs-small);
+  color: var(--color-text);
+}
+
+.alert-title {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-bottom: 0.25rem;
+}
+
+.alert.success {
+  background: var(--color-success-bg);
+  border-left-color: var(--color-success-text);
+  color: var(--color-success-text);
+}
+
+.alert.error {
+  background: var(--color-error-bg);
+  border-left-color: var(--color-error-text);
+  color: var(--color-error-text);
+}
+
+.toast {
+  position: fixed;
+  bottom: var(--space-m);
+  right: var(--space-m);
+  z-index: var(--z-toast);
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.85rem 1.25rem;
+  background: var(--color-ink);
+  color: var(--color-white);
+  border-left: 3px solid var(--color-signal);
+  border-radius: var(--radius-s);
+  font-size: var(--fs-small);
+  box-shadow: var(--shadow-card);
+}
+
+.toast.error {
+  border-left-color: var(--color-error-text);
+}
+
+/* --------------------------------------------------------------------------
+   14. Blockquote, Code & HR
+   -------------------------------------------------------------------------- */
+blockquote {
+  margin: var(--space-m) 0;
+  padding: var(--space-s) var(--space-m);
+  border-left: 2px solid var(--color-signal);
+  background: var(--color-white);
+  color: var(--color-text);
+  font-size: 1.05rem;
+}
+
+blockquote p:last-child {
+  margin-bottom: 0;
+}
+
+blockquote cite {
+  display: block;
+  margin-top: 0.5rem;
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  font-style: normal;
+  color: var(--color-text-muted);
+}
+
+blockquote cite::before {
+  content: '— ';
+}
+
+code {
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+  background: var(--color-paper);
+  border: 1px solid var(--color-line);
+  padding: 0.1em 0.4em;
+  border-radius: var(--radius-s);
+  color: var(--color-ink);
+}
+
+pre {
+  font-family: var(--font-mono);
+  font-size: var(--fs-small);
+  line-height: 1.6;
+  background: var(--color-ink);
+  color: var(--color-white);
+  padding: var(--space-s) var(--space-m);
+  border-radius: var(--radius-s);
+  overflow-x: auto;
+}
+
+pre code {
+  background: none;
+  border: none;
+  padding: 0;
+  color: inherit;
+}
+
+hr {
+  border: none;
+  border-top: 1px solid var(--color-line);
+  margin: var(--space-m) 0;
+}
+
+/* --------------------------------------------------------------------------
+   15. Dropdown-Menü
+   Der --z-dropdown-Token existierte bereits in der Skala, ohne dass ein
+   Bauteil ihn nutzte — hier nachgezogen, für Konto-/Sprachmenüs im Header.
+   -------------------------------------------------------------------------- */
+.dropdown-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: var(--z-dropdown);
+  min-width: 200px;
+  background: var(--color-white);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-s);
+  box-shadow: var(--shadow-card);
+  padding: 0.4rem;
+}
+
+.dropdown-menu a {
+  display: block;
+  padding: 0.55rem 0.75rem;
+  border-radius: var(--radius-s);
+  font-size: var(--fs-small);
+  color: var(--color-text);
+}
+
+.dropdown-menu a:hover {
+  background: var(--color-paper);
+  color: var(--color-ink);
+}
+
+/* --------------------------------------------------------------------------
+   16. Skip-Link
+   Ergänzt das bereits vorhandene .sr-only-Muster um einen sichtbaren
+   Sprung-zum-Inhalt-Link — Voraussetzung für eine wirklich
+   produktionsreife, tastaturzugängliche Seite.
+   -------------------------------------------------------------------------- */
+.skip-link {
+  position: absolute;
+  top: -100%;
+  left: var(--space-s);
+  z-index: var(--z-toast);
+  background: var(--color-ink);
+  color: var(--color-white);
+  padding: 0.75rem 1.25rem;
+  font-family: var(--font-mono);
+  font-size: var(--fs-small);
+  border-radius: var(--radius-s);
+  transition: top var(--transition);
+}
+
+.skip-link:focus {
+  top: var(--space-s);
+}
+
+/* --------------------------------------------------------------------------
+   17. Content-Pages (Impressum, Datenschutz, AGB)
+   -------------------------------------------------------------------------- */
+.content-page {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: var(--space-xl) var(--space-l);
+}
+
+.content-page h1 {
+  margin-bottom: var(--space-m);
+}
+
+.content-page h2 {
+  font-size: 1.35rem;
+  margin-top: var(--space-l);
+  margin-bottom: 0.75rem;
+}
+
+.content-page h3 {
+  font-size: 1.1rem;
+  margin-top: var(--space-m);
+  margin-bottom: 0.5rem;
+}
+
+.content-page p,
+.content-page li {
+  color: var(--color-text-muted);
+}
+
+.content-page ul,
+.content-page ol {
+  margin: 0 0 var(--space-s);
+  padding-left: 1.25rem;
+  max-width: var(--text-width);
+}
+
+.content-page li + li {
+  margin-top: 0.25rem;
+}
+
+.content-page section + section {
+  margin-top: var(--space-m);
+  padding-top: var(--space-m);
+  border-top: 1px solid var(--color-line);
+}
+
+/* Tabellen innerhalb von Content-Pages (z. B. Firmendaten im Impressum,
+   Verarbeitungsübersichten in der Datenschutzerklärung) erben automatisch
+   das .data-table-Erscheinungsbild, auch ohne zusätzliche Klasse. */
+.content-page table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0 0 var(--space-m);
+  font-size: var(--fs-small);
+}
+
+.content-page th,
+.content-page td {
+  text-align: left;
+  padding: 0.6rem 0.9rem;
+  border-bottom: 1px solid var(--color-line);
+}
+
+.content-page th {
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-text-muted-dark);
+  border-bottom: 1px solid var(--color-line-strong);
+}
+
+.content-page blockquote {
+  margin: var(--space-m) 0;
+}
+
+/* --------------------------------------------------------------------------
+   18. Footer
+   -------------------------------------------------------------------------- */
+.site-footer {
+  background: var(--color-ink);
+  color: rgba(255, 255, 255, 0.8);
+  margin: var(--space-3xl) var(--space-l) var(--space-l);
+  padding: var(--space-3xl) var(--space-l) var(--space-l);
+  padding-top: 6rem;
+  border-top: 2px solid var(--color-signal);
+  position: relative;
+}
+
+.footer-container {
+  max-width: var(--content-width);
+  margin: 0 auto var(--space-l);
+  display: grid;
+  grid-template-columns: 1.6fr 1fr 1fr 1.2fr;
+  gap: var(--space-xl);
+}
+
+/* ===== Logo & Brand ===== */
+.footer-logo {
+  color: var(--color-white);
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.3rem;
+  margin-bottom: 0.6rem;
+  letter-spacing: -0.02em;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.footer-logo::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  background: var(--color-signal);
+  flex-shrink: 0;
+}
+
+.footer-slogan {
+  font-size: var(--fs-small);
+  max-width: 32ch;
+  color: rgba(255, 255, 255, 0.6); /* erhöht für Kontrast */
+  line-height: 1.6;
+  margin-bottom: var(--space-m);
+}
+
+/* ===== Kontaktdaten (Adresse, Telefon, E-Mail) ===== */
+.footer-contact {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  font-size: 0.95rem;
+}
+
+.footer-contact-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: rgba(255, 255, 255, 0.7); /* erhöht */
+  transition: color var(--transition);
+}
+
+.footer-contact-item:hover {
+  color: var(--color-white);
+}
+
+.footer-contact-item svg {
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  color: var(--color-signal);
+}
+
+/* ===== Spalten-Überschriften ===== */
+.footer-col h4 {
+  color: var(--color-white);
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: var(--space-s);
+  position: relative;
+  display: inline-block;
+}
+
+.footer-col h4::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  width: 20px;
+  height: 1px;
+  background: var(--color-signal);
+}
+
+/* ===== Footer-Links ===== */
+.footer-links {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+
+.footer-links a {
+  color: rgba(255, 255, 255, 0.7); /* erhöht für besseren Kontrast */
+  text-decoration: none;
+  font-size: 0.95rem;
+  transition: all var(--transition);
+  position: relative;
+  padding-left: 0;
+}
+
+.footer-links a::before {
+  content: '›';
+  position: absolute;
+  left: -12px;
+  opacity: 0;
+  transition: all var(--transition);
+  color: var(--color-signal);
+}
+
+.footer-links a:hover {
+  color: var(--color-white);
+  padding-left: 16px;
+}
+
+.footer-links a:hover::before {
+  opacity: 1;
+  left: 0;
+}
+
+/* ===== Social Media Icons ===== */
+.footer-social {
+  display: flex;
+  gap: 0.6rem;
+  list-style: none;
+  margin: var(--space-s) 0 0;
+  padding: 0;
+}
+
+.footer-social a {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0;
+  background: transparent;
+  color: var(--color-white);
+  text-decoration: none;
+  transition: all var(--transition);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.footer-social a:hover {
+  background: var(--color-signal);
+  border-color: var(--color-signal);
+}
+
+.footer-social a svg {
+  width: 18px;
+  height: 18px;
+  transition: transform var(--transition);
+}
+
+/* ===== Untere Leiste (Copyright) ===== */
+.footer-bottom {
+  max-width: var(--content-width);
+  margin: 0 auto;
+  padding-top: var(--space-m);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-s);
+  flex-wrap: wrap;
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.footer-bottom .copyright {
+  font-weight: 400;
+  letter-spacing: 0.01em;
+}
+
+.footer-bottom-links {
+  display: flex;
+  gap: var(--space-m);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.footer-bottom-links a {
+  color: rgba(255, 255, 255, 0.5); /* erhöht */
+  text-decoration: none;
+  transition: color var(--transition);
+  font-size: 0.8rem;
+  letter-spacing: 0.02em;
+}
+
+.footer-bottom-links a:hover {
+  color: var(--color-white);
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 992px) {
+  .footer-container {
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-l);
+  }
+}
+
+@media (max-width: 768px) {
+  .footer-container {
+    grid-template-columns: 1fr;
+    gap: var(--space-m);
+  }
+
+  .footer-bottom {
+    flex-direction: column;
+    text-align: center;
+    gap: 0.5rem;
+  }
+
+  .footer-bottom-links {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .footer-social a {
+    width: 44px;
+    height: 44px;
+  }
+}
+
+
+/* --------------------------------------------------------------------------
+   19. Utilities
+   -------------------------------------------------------------------------- */
+.text-center { text-align: center; }
+.text-muted { color: var(--color-text-muted); }
+.text-white { color: var(--color-white); }
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ===== Container ===== */
+.container {
+  width: 100%;
+  max-width: var(--content-width);
+  margin: 0 auto;
+  padding: 0 var(--space-s);
+}
+
+/* ===== Section Spacing ===== */
+.section-padding {
+  padding: var(--space-xl) 0;
+}
+
+.section-padding-sm {
+  padding: var(--space-l) 0;
+}
+
+/* ===== Grid Helpers ===== */
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-l);
+}
+
+.grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-l);
+}
+
+@media (max-width: 900px) {
+  .grid-2,
+  .grid-3 {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ===== Card ===== */
+.card {
+  background: var(--color-white);
+  border-radius: var(--radius-s);
+  padding: var(--space-m);
+  border: 1px solid var(--color-line);
+  transition: border-color var(--transition), box-shadow var(--transition);
+}
+
+.card:hover {
+  border-color: var(--color-signal);
+  box-shadow: var(--shadow-hover);
+}
+
+/* ===== Gradient Text =====
+   Beibehalten als Utility-Klasse für Kompatibilität, aber bewusst ohne
+   Verlauf: die Markensprache setzt auf Vollton-Signalgrün statt Gradient. */
+.gradient-text {
+  color: var(--color-signal-strong);
+}
+
+/* ===== Flex Helpers ===== */
+.flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.flex-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.gap-s { gap: var(--space-s); }
+.gap-m { gap: var(--space-m); }
+
+/* ===== Animation Helpers ===== */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-in {
+  animation: fadeIn 0.5s ease-out forwards;
+}
+
+.animate-in-delay-1 { animation-delay: 0.1s; }
+.animate-in-delay-2 { animation-delay: 0.2s; }
+.animate-in-delay-3 { animation-delay: 0.3s; }
+
+/* ===== Print Styles ===== */
+@media print {
+  .site-header,
+  .site-footer,
+  .skip-link,
+  .toast,
+  .hero-section::before,
+  .hero-section::after,
+  .hero-eyebrow,
+  .hero-actions,
+  .cta-section {
+    display: none !important;
+  }
+
+  body {
+    background: white;
+    background-image: none;
+    color: black;
+  }
+
+  .content-section {
+    padding: 2rem 0;
+  }
+}
