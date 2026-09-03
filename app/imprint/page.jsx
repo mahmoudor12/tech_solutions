@@ -49,17 +49,17 @@ export default function ImpressumPage() {
                 <div className="space-y-3 text-gray-700">
                   <p>
                     <strong>Tech-Solutions</strong><br />
-                    DEINE_STRASSE 123<br />
-                    12345 DEINE_STADT
+                    Hochstr 146<br />
+                    66115 Saarbrücken
                   </p>
                   <p>
                     <strong>Vertreten durch:</strong><br />
-                    [VORNAME NACHNAME]
+                    [Mahmoud Orabi]
                   </p>
                   <p>
                     <strong>Kontakt:</strong><br />
-                    Telefon: +49 123 4567890<br />
-                    E-Mail: info@tech-solutions.de
+                    Telefon: +49 15906661522<br />
+                    E-Mail: mahmoud.orabi.dev@gmail.com
                   </p>
                   <p>
                     <strong>Umsatzsteuer-Identifikationsnummer:</strong><br />
@@ -67,7 +67,7 @@ export default function ImpressumPage() {
                   </p>
                   <p>
                     <strong>Handelsregister:</strong><br />
-                    Amtsgericht DEINE_STADT, HRB XXXXX
+                    Amtsgericht DEINE_STADT, HRB XXXX
                   </p>
                 </div>
               </div>
@@ -80,9 +80,9 @@ export default function ImpressumPage() {
                 <div className="space-y-3 text-gray-700">
                   <p>
                     <strong>Verantwortlich für den Inhalt:</strong><br />
-                    [VORNAME NACHNAME]<br />
-                    DEINE_STRASSE 123<br />
-                    12345 DEINE_STADT
+                    [Mahmoud Orabi]<br />
+                    Hochstr 146<br />
+                    66115 Saarbrücken
                   </p>
                 </div>
               </div>

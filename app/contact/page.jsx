@@ -119,7 +119,7 @@ export default function ContactPage() {
                     </div>
                     <div>
                       <h4 className="font-semibold text-gray-900">Adresse</h4>
-                      <p className="text-gray-600 text-sm">DEINE_STRASSE 123<br />12345 DEINE_STADT</p>
+                      <p className="text-gray-600 text-sm">Hochstr 146<br />66115 Saarbrücken</p>
                     </div>
                   </div>
 
@@ -129,7 +129,7 @@ export default function ContactPage() {
                     </div>
                     <div>
                       <h4 className="font-semibold text-gray-900">Telefon</h4>
-                      <p className="text-gray-600 text-sm">+49 123 4567890</p>
+                      <p className="text-gray-600 text-sm">+49 15906661522</p>
                     </div>
                   </div>
 
@@ -139,7 +139,7 @@ export default function ContactPage() {
                     </div>
                     <div>
                       <h4 className="font-semibold text-gray-900">E-Mail</h4>
-                      <p className="text-gray-600 text-sm">info@tech-solutions.de</p>
+                      <p className="text-gray-600 text-sm">mahmoud.orabi.dev@gmail.com</p>
                     </div>
                   </div>
 

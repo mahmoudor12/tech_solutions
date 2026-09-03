@@ -85,8 +85,10 @@ export default function DatenschutzPage() {
                             <Info className="w-5 h-5 text-blue-500 flex-shrink-0 mt-0.5" />
                             <span>
                               <strong>Verantwortliche Stelle:</strong> Tech-Solutions, 
-                              DEINE_STRASSE 123, 12345 DEINE_STADT
-                            </span>
+                              Hochstr 146, 66115 Saarbrücken, Deutschland<br />
+                              <strong>Kontakt:</strong> Telefon: +49 15906661522, E-Mail: 
+                              <a href="mailto:mahmoud.orabi.dev@gmail.com" className="text-blue-600 hover:underline">mahmoud.orabi.dev@gmail.com</a>
+                             </span>
                           </p>
                         </div>
                       </div>
