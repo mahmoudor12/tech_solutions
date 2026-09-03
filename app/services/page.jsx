@@ -176,28 +176,24 @@ export default function ServicesPage() {
         })}
 
         {/* ===== Call to Action ===== */}
-        <section className="relative py-20 bg-slate-950 text-white overflow-hidden">
-  {/* Dekorativer, weicher Glow im Hintergrund */}
-  <div className="absolute inset-0 bg-gradient-to-tr from-blue-600/30 via-cyan-500/20 to-transparent pointer-events-none" />
-  
-  {/* Dezentes Grid-Muster für den Tech-Look */}
-  <div className="absolute inset-0 bg-[linear-gradient(to_right,#1e293b_1px,transparent_1px),linear-gradient(to_bottom,#1e293b_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] opacity-20" />
+      <section className="relative py-20 bg-slate-950 text-white overflow-hidden">
+  {/* Dezenter, stimmiger Glow im Hintergrund */}
+  <div className="absolute inset-0 bg-gradient-to-tr from-blue-900/40 via-cyan-900/20 to-transparent pointer-events-none" />
 
   <div className="relative container mx-auto px-4 md:px-8 text-center">
-    <h2 className="text-3xl md:text-5xl font-extrabold tracking-tight mb-4 bg-gradient-to-r from-white via-blue-100 to-cyan-200 bg-clip-text text-transparent">
+    <h2 className="text-3xl md:text-5xl font-extrabold tracking-tight text-white mb-4 drop-shadow-md">
       Bereit für die digitale Zukunft?
     </h2>
-    <p className="text-lg md:text-xl text-slate-300 max-w-2xl mx-auto mb-8 font-light">
+    <p className="text-lg md:text-xl text-slate-300 max-w-2xl mx-auto mb-8 font-normal">
       Kontaktieren Sie uns – wir entwickeln Ihre maßgeschneiderte Technologielösung.
     </p>
     <a
       href="/contact"
-      className="group relative inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white font-medium px-8 py-4 rounded-xl shadow-[0_0_25px_rgba(37,99,235,0.4)] hover:shadow-[0_0_35px_rgba(6,182,212,0.6)] transition-all duration-300 transform hover:-translate-y-0.5"
+      className="group relative inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white font-semibold px-8 py-4 rounded-xl shadow-[0_0_25px_rgba(37,99,235,0.4)] hover:shadow-[0_0_35px_rgba(6,182,212,0.6)] transition-all duration-300 transform hover:-translate-y-0.5"
     >
       <span>Jetzt Tech-Beratung anfragen</span>
-      {/* Kleiner Pfeil-Effekt beim Hover */}
       <svg className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3" />
       </svg>
     </a>
   </div>
